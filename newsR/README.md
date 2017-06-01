@@ -5,3 +5,8 @@ Still a draft, the plan is to get some functions together to help extract news h
 Install with:
 
     devtools::install_github("rmnppt/newsfuzz/newsR")
+
+See what sources there are with:
+
+    newsapiSources()
+

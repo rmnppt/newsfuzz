@@ -8,7 +8,7 @@
 #'                 Possible options: business, entertainment, gaming, general, music, politics, science-and-nature, sport, technology.
 #'                 Default: empty (all sources returned)
 #'
-#' @keywords SIMD, openSIMD, simdr
+#' @keywords news, api
 #'
 #' @import jsonlite
 #' @export
