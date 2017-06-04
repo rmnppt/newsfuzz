@@ -1,5 +1,7 @@
 #' newsapiArticles
 #'
+#' A function to retrieve articles from newsapi.org
+#'
 #' @param source 	(required) - The identifer for the news source or blog you want headlines from.
 #'                             Use \code{\link{newsapiSources}} endpoint to locate this or use the sources index.
 #' @param key 	(required) - Your API key. Alternatively you can provide this via the X-Api-Key HTTP header.
