@@ -1,13 +1,14 @@
 date()
 
-if(!require(devtools)) install.packages("devtools")
-if(!require(dplyr)) install.packages("dplyr")
-if(!require(rPython)) install.packages("rPython"); library(rPython)
-if(!require(newsR)) {
-  devtools::install_github("rmnppt/newsfuzz/newsR")
-  library(newsR)
-}
+### install / load packages
+library(xml2)
+library(dplyr)
+library(rPython)
+# devtools::install_github("rmnppt/newsfuzz/newsR")
+library(newsR)
+###
 
+### collect source and article information from api
 sources <- newsapiSources("en", "gb")
 saveRDS(sources, "data/sources.rds")
 
@@ -15,6 +16,7 @@ articles <- lapply(sources$sources$id, function(s) newsapiArticles(source = s))
 articles <- articles %>%
   lapply(jsonlite::flatten()) %>%
   do.call(rbind, .)
+###
 
 clean_html <- function(url) {
   input <- httr::GET(url) %>% httr::content(as = "text", type = "html")
