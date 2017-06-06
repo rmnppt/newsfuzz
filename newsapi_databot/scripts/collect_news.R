@@ -22,14 +22,17 @@ names(articles) <- sub("articles.", "", names(articles))
 ###
 
 ### Clean raw html
-input <- httr::GET(articles$url[1]) %>% 
-  httr::content(as = "text", type = "html") %>%
-  as.data.frame()
-names(input) <- "text"
-input$text <- as.character(input$text)
-token <- unnest_tokens(input, token, text)
-token <- token %>%
-  filter(token %in% DICTIONARY$word)
+getCleanHTML <- function(url) {
+  input <- httr::GET(url) %>% 
+    httr::content(as = "text", type = "html") %>%
+    as.data.frame()
+  names(input) <- "text"
+  input$text <- as.character(input$text)
+  token <- unnest_tokens(input, token, text)
+  token <- token %>% filter(token %in% DICTIONARY$word)
+}
+
+
 
 ### timestamp and filter old articles
 timelast <- readRDS("data/lastdownloaded.rds")
