@@ -20,7 +20,7 @@ list_of_dicts = []
 def toUtf(col):
     """ takes a column of a dataframe, encodes it as utf-8 and returns it. """
     if col.dtype in ['object', 'str']:
-        return col.str.encode('utf-8')
+        return col.str.encode('utf-8', 'replace')
     else:
         return col
 
