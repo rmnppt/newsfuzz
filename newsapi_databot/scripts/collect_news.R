@@ -21,19 +21,6 @@ articles <- sources$sources$id %>%
 names(articles) <- sub("articles.", "", names(articles))
 ###
 
-### Clean raw html
-getCleanHTML <- function(url) {
-  input <- httr::GET(url) %>% 
-    httr::content(as = "text", type = "html") %>%
-    as.data.frame()
-  names(input) <- "text"
-  input$text <- as.character(input$text)
-  token <- unnest_tokens(input, token, text)
-  token <- token %>% filter(token %in% DICTIONARY$word)
-}
-
-
-
 ### timestamp and filter old articles
 timelast <- readRDS("data/lastdownloaded.rds")
 if(exists(timelast)) {
@@ -41,6 +28,22 @@ if(exists(timelast)) {
     filter(publishedAt > timelast)
 }
 ###
+
+### Collect and Clean raw html
+getCleanHTML <- function(url) {
+  cat(url)
+  input <- httr::GET(url) %>% 
+    httr::content(as = "text", type = "html") %>%
+    as.data.frame()
+  names(input) <- "text"
+  input$text <- as.character(input$text)
+  token <- unnest_tokens(input, token, text)
+  token <- token %>% filter(token %in% DICTIONARY$word)
+  cat("... done\n")
+  return(token)
+}
+articles$words <- lapply(articles$url, getCleanHTML)
+### 
 
 ### write new data to db
 con <- dbConnect(RMySQL::MySQL(), 
