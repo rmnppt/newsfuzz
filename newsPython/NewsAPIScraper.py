@@ -53,7 +53,7 @@ class NewsAPIorgScraper:
 						try:
 							res = requests.get(j['url'])
 							res.raise_for_status()
-							soup = BeautifulSoup(res.text)
+							soup = BeautifulSoup(res.text,'lxml')
 							[t.decompose() for t in soup(['script', 'iframe', 'style'])]
 							txt = soup.get_text().translate({ord(c): ' ' for c in string.punctuation})
 							txt = ' '.join(txt.split())
@@ -76,15 +76,18 @@ class NewsAPIorgScraper:
 
 		# try to read existing table and then merge or write new
 		try:
-		    # read existing table
-			newsfuzz_db = pd.io.sql.read_sql('SELECT * FROM newsfuzz_db', engine, index_col='index')
-		    # concat, drop duplicates and write to mysql
-			(pd.concat([newsfuzz_db, df])
-			.drop_duplicates(subset=['article_url', 'article_title', 'article_publishedAt'])
-			.apply(self.toUtf)
-			.to_sql('newsfuzz_db', engine, if_exists='replace'))
-			print('Existing table updated.')
+		    # Add the new data to the temp database
+			df.apply(self.toUtf).to_sql('newsfuzz_db_temp', engine, if_exists='replace')
+			# Run a query on the temp db to push the new data (without dupes) into the working db
+			conn = engine.connect()
+			conn.execute("INSERT INTO newsfuzz_db_test SELECT * FROM newsfuzz_db_temp WHERE NOT EXISTS(SELECT * FROM newsfuzz_db_test WHERE ('datafuzz_db_temp.article_url'='datafuzz_db_test.article_url'))")
+			print('New articles added')
+			
 		except Exception as exc:
-		    # if no table exists, write df to mysql
+		    # if no temp table exists, write df to mysql
 			print('Could not read existing table. Now trying to create it. - %s' % (exc))
-			df.to_sql('newsfuzz_db', engine)
+			df.to_sql('newsfuzz_db_temp', engine)
+			# Run a query on the temp db to push the new data (without dupes) into the working db
+			conn = engine.connect()
+			conn.execute("INSERT INTO newsfuzz_db_test SELECT * FROM newsfuzz_db_temp WHERE NOT EXISTS(SELECT * FROM newsfuzz_db_test WHERE ('datafuzz_db_temp.article_url'='datafuzz_db_test.article_url'))")
+			print('New articles added')
