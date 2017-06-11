@@ -1,8 +1,10 @@
 import NewsAPIScraper as nsapi
 import time
+import sys
 
-# Get an instance of the newsapiorg scraper
-scraper=nsapi.NewsAPIorgScraper('36cf62c1562241d4be124d5bcd5660b1')
+# Gets an instance of the newsapiorg scraper
+# Takes command line arguments for credentials as: api_key, db_user, db_pass
+scraper=nsapi.NewsAPIorgScraper(sys.argv[0],sys.argv[1],sys.argv[2])
 
 while True:
 	try:

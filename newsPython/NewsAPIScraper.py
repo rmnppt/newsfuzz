@@ -10,8 +10,10 @@ import string
 class NewsAPIorgScraper:
     
 	# Setup initial parameters needed for the scraping
-	def __init__(self,api_key):
+	def __init__(self,api_key,db_user,db_pass):
 		self.api_key=api_key
+		self.db_user=db_user
+		self.db_pass=db_pass
 	
 	def toUtf(self,col):
 		""" takes a column of a dataframe, encodes it as utf-8 and returns it. """
@@ -72,7 +74,7 @@ class NewsAPIorgScraper:
 		df = pd.DataFrame(list_of_dicts)
 
 		# prepare mysql connection
-		engine = create_engine('mysql+pymysql://newsfuzz:newsfuzzplease@newsfuzz.cuhvcgseshha.eu-west-2.rds.amazonaws.com:3306/newsfuzz', encoding='utf-8')
+		engine = create_engine('mysql+pymysql://'+self.db_user+':'+self.db_pass+'@newsfuzz.cuhvcgseshha.eu-west-2.rds.amazonaws.com:3306/newsfuzz', encoding='utf-8')
 
 		try:
 		    # Add the new data to the temp database
