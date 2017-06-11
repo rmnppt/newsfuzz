@@ -8,6 +8,6 @@ while True:
 	try:
 		# fetch the news every hour!
 		scraper.fetch_news()
-		time.sleep(600)
+		time.sleep(3600)
 	except:
             print('Error, waiting an hour')

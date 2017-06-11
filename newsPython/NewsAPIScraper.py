@@ -74,13 +74,22 @@ class NewsAPIorgScraper:
 		# prepare mysql connection
 		engine = create_engine('mysql+pymysql://newsfuzz:newsfuzzplease@newsfuzz.cuhvcgseshha.eu-west-2.rds.amazonaws.com:3306/newsfuzz', encoding='utf-8')
 
-		# try to read existing table and then merge or write new
 		try:
 		    # Add the new data to the temp database
 			df.apply(self.toUtf).to_sql('newsfuzz_db_temp', engine, if_exists='replace')
-			# Run a query on the temp db to push the new data (without dupes) into the working db
+			
+			# Get a connection
 			conn = engine.connect()
-			conn.execute("INSERT INTO newsfuzz_db_test SELECT * FROM newsfuzz_db_temp WHERE NOT EXISTS(SELECT * FROM newsfuzz_db_test WHERE ('datafuzz_db_temp.article_url'='datafuzz_db_test.article_url'))")
+			
+			# Delete duplicates from the temp DB
+			query_delete_dupes='''delete from newsfuzz_db_temp WHERE article_url IN (SELECT * FROM (SELECT article_url FROM newsfuzz_db_temp GROUP BY article_url HAVING (COUNT(*) > 1)) AS a)'''
+			conn.execute(query_delete_dupes)
+
+			# Copy the non-duplicate new articles into the working db
+			query_insert='''insert into newsfuzz_db_test SELECT * FROM newsfuzz_db_temp WHERE NOT EXISTS(SELECT * FROM newsfuzz_db_test WHERE (newsfuzz_db_temp.article_url=newsfuzz_db_test.article_url))'''
+			conn.execute(query_insert)
+
+			conn.close()
 			print('New articles added')
 			
 		except Exception as exc:
@@ -88,6 +97,16 @@ class NewsAPIorgScraper:
 			print('Could not read existing table. Now trying to create it. - %s' % (exc))
 			df.to_sql('newsfuzz_db_temp', engine)
 			# Run a query on the temp db to push the new data (without dupes) into the working db
+			# Get a connection
 			conn = engine.connect()
-			conn.execute("INSERT INTO newsfuzz_db_test SELECT * FROM newsfuzz_db_temp WHERE NOT EXISTS(SELECT * FROM newsfuzz_db_test WHERE ('datafuzz_db_temp.article_url'='datafuzz_db_test.article_url'))")
+			
+			# Delete duplicates from the temp DB
+			query_delete_dupes='''delete from newsfuzz_db_temp WHERE article_url IN (SELECT * FROM (SELECT article_url FROM newsfuzz_db_temp GROUP BY article_url HAVING (COUNT(*) > 1)) AS a)'''
+			conn.execute(query_delete_dupes)
+
+			# Copy the non-duplicate new articles into the working db
+			query_insert='''insert into newsfuzz_db_test SELECT * FROM newsfuzz_db_temp WHERE NOT EXISTS(SELECT * FROM newsfuzz_db_test WHERE (newsfuzz_db_temp.article_url=newsfuzz_db_test.article_url))'''
+			conn.execute(query_insert)
+
+			conn.close()
 			print('New articles added')
