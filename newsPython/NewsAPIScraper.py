@@ -14,7 +14,8 @@ class NewsAPIorgScraper:
 		self.api_key=api_key
 		self.db_user=db_user
 		self.db_pass=db_pass
-	
+
+	# Function to replace all non-utf8 character	
 	def toUtf(self,col):
 		""" takes a column of a dataframe, encodes it as utf-8 and returns it. """
 		if col.dtype in ['object', 'str']:
@@ -22,8 +23,8 @@ class NewsAPIorgScraper:
 		else:
 			return col
 
+	# takes a source, renames its keys, drops 'urlsToLogos' and 'sortBysAvailable' and returns the new dict. """
 	def modDict(self,input_dict, prefix):
-		""" takes a source, renames its keys, drops 'urlsToLogos' and 'sortBysAvailable' and returns the new dict. """
 		droplist = ['urlsToLogos', 'sortBysAvailable']
 		output = {}
 		for key in input_dict:
@@ -33,6 +34,7 @@ class NewsAPIorgScraper:
 				output[prefix + str(key)] = input_dict[key]
 		return output
 
+	# Function to fetch the data from the API and send it to a remote mysql database
 	def fetch_news(self):
 		# get all sources
 		a = Articles(API_KEY=self.api_key)
@@ -98,7 +100,7 @@ class NewsAPIorgScraper:
 		    # if no temp table exists, write df to mysql
 			print('Could not read existing table. Now trying to create it. - %s' % (exc))
 			df.to_sql('newsfuzz_db_temp', engine)
-			# Run a query on the temp db to push the new data (without dupes) into the working db
+			
 			# Get a connection
 			conn = engine.connect()
 			
