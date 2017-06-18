@@ -15,7 +15,10 @@ class NewsParser:
 	def parse_news(url):
 	    # get soup
 		s= get_soup(url)
-
+		# Get rid of as much inline javascript as possible!
+		for script in s(["script", "style"]):
+			script.extract()
+		text=''
 	    # determine which parser to use
 		if 'dailymail.co.uk' in url:
 			return s.find('div',attrs={"itemprop":"articleBody"}).text
@@ -25,3 +28,22 @@ class NewsParser:
 			return s.find('div',attrs={"class":"article section"}).text
 		if 'www.theguardian.com' in url:
 			return s.find('div',attrs={"itemprop":"articleBody"}).text
+		if 'telegraph.co.uk' in url:
+			text=s.find('div',attrs={"class":"article__content js-article"}).text.replace('\n', '')
+		if 'mirror.co.uk' in url:
+			text=s.find('div',attrs={"class":"article-body"}).text.replace('\n', '')
+
+		return text
+
+	# Returns a list of article texts based on a list of urls of articles, parsing each before returning
+	def get_articles(url_list):
+		articles_text=[]
+		count=0
+	    # For each url in the list...
+		for u in urls:
+			count=count+1
+			if count % 10 == 0:
+				print(str(count)+' articles from a total of '+str(len(url_list)))
+	        # Get the article content, parse it and add it to the list to be returned
+			articles_text.append(parse_news(u))
+		return articles_text
