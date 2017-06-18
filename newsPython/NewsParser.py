@@ -6,6 +6,7 @@ class NewsParser:
 
 	# Helper function that gets soup for an arbitrary url
 	def get_soup(url):
+		res = requests.get(url)
 		res.raise_for_status()
 		return BeautifulSoup(res.text,'lxml')
 
