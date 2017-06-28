@@ -4,8 +4,11 @@ import sys
 
 # Gets an instance of the newsapiorg scraper
 # Takes command line arguments for credentials as: api_key, db_user, db_pass
-scraper=nsapi.NewsAPIorgScraper(sys.argv[0],sys.argv[1],sys.argv[2])
 
+args=[]
+with open('config.txt', 'r') as file:
+	args=file.read().split(',')
+scraper=nsapi.NewsAPIorgScraper(args[0],args[1],args[2])
 while True:
 	try:
 		# fetch the news every hour!

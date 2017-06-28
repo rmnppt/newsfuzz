@@ -6,14 +6,23 @@ import requests
 import pymysql
 from sqlalchemy import create_engine
 import string
+import NewsParser as newsp
 
 class NewsAPIorgScraper:
-    
+   
 	# Setup initial parameters needed for the scraping
 	def __init__(self,api_key,db_user,db_pass):
 		self.api_key=api_key
 		self.db_user=db_user
 		self.db_pass=db_pass
+		self.parser=newsp.MultiNewsParser()
+
+	def custom_parser_available(self,url):
+		custom_parsers=['reuters.com','breitbart.com','mirror.co.uk','dailymail.co.uk','abc.net.au','bbc.co.uk/news','www.theguardian.com','telegraph.co.uk']
+		for p in custom_parsers:
+			if p in url:
+				return True
+		return False
 
 	# Function to replace all non-utf8 character	
 	def toUtf(self,col):
@@ -55,12 +64,20 @@ class NewsAPIorgScraper:
 						article_dict.update(source_dict)
 		                # try to add raw html from url
 						try:
-							res = requests.get(j['url'])
-							res.raise_for_status()
-							soup = BeautifulSoup(res.text,'lxml')
-							[t.decompose() for t in soup(['script', 'iframe', 'style'])]
-							txt = soup.get_text().translate({ord(c): ' ' for c in string.punctuation})
-							txt = ' '.join(txt.split())
+							# Custom parser available, extract the text
+							if self.custom_parser_available(j['url']):
+								txt=self.parser.parse_news(j['url'])
+
+							# No custom parser available, use the older method
+							else:
+								res = requests.get(j['url'])
+								res.raise_for_status()
+								soup = BeautifulSoup(res.text,'lxml')
+								[t.decompose() for t in soup(['script', 'iframe', 'style'])]
+								txt = soup.get_text().translate({ord(c): ' ' for c in string.punctuation})
+								txt = ' '.join(txt.split())
+
+							# Add the text to the df
 							article_dict['article_raw'] = txt
 						except Exception as exc:
 							article_dict['article_raw'] = ''
