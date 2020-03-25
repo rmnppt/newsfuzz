@@ -1,0 +1,19 @@
+{
+  "name": "newsfuzz-collect",
+  "version": "0.0.0",
+  "description": "collecting news from the newsapi.org",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "newsapi.org",
+    "newsfuzz",
+    "collect",
+    "news"
+  ],
+  "author": "Roman Popat",
+  "dependencies": {
+    "newsapi": "^2.4.0"
+  }
+}
