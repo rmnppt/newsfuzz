@@ -41,6 +41,7 @@ const newsapi = new NewsAPI(auth.key);
 //     }
 //   */
 // });
+
 // To query sources
 // All options are optional
 newsapi.v2.sources({
