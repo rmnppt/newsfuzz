@@ -6,7 +6,7 @@ class Source {
     url,
     category,
     language,
-    country,
+    country
   ) {
     this.id = id;
     this.name = name;
@@ -14,6 +14,17 @@ class Source {
     this.category = category;
     this.language = language;
     this.country = country;
+  }
+
+  get() {
+    return {
+      id: this.id,
+      name: this.name,
+      url: this.url,
+      category: this.category,
+      language: this.language,
+      country: this.country,
+    }
   }
 }
 
@@ -26,13 +37,26 @@ class Sources {
         this.sources = sources
       } else {
         sources = sources.map((s) => {
-          return new Source(s);
+          return new Source(
+            s.id,
+            s.name,
+            s.description,
+            s.url,
+            s.category,
+            s.language,
+            s.country,
+          );
         });
+        this.sources = sources
       }} else {
         throw new Error(
           'Did not provide and array of items, please check input'
         );
       }
+  }
+
+  getAll() {
+    return this.sources.map((s) => s.get())
   }
 }
 

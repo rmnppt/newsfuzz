@@ -1,8 +1,15 @@
 const NewsAPI = require('newsapi');
+const { Firestore } = require('@google-cloud/firestore');
 const { Sources } = require('./entities');
 
-const auth = require('./auth');
-const newsapi = new NewsAPI(auth.key);
+const newsapi_auth = require('./newsapi_auth');
+const newsapi = new NewsAPI(newsapi_auth.key);
+
+// authentication to gcp for local testing
+process.env['GOOGLE_APPLICATION_CREDENTIALS'] = 'gcp_auth.json'
+
+const firestore = new Firestore();
+const sources_collection = firestore.collection('sources');
 
 function getSources(language = 'en') {
   sources = newsapi.v2.sources({
@@ -11,11 +18,22 @@ function getSources(language = 'en') {
   return sources;
 }
 
-getSources()
+function updateSourcesDocument() {
+  getSources()
   .catch("Failed to get the sources from newsapi.org.")
   .then((response) => {
+
     console.log(`status: ${response.status}`);
     console.log(`number of sources: ${response.sources.length}`);
-    console.log(response.sources[0]);
+
     sourceObj = new Sources(response.sources);
+    sources = sourceObj.getAll();
+
+    sources.forEach((source) => {
+      const doc = sources_collection.doc(source.id);
+      var setWithMerge = doc.set(source, { merge: true });
+    });
   });
+}
+
+updateSourcesDocument();
