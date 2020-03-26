@@ -5,9 +5,6 @@ const { Sources } = require('./entities');
 const newsapi_auth = require('./newsapi_auth');
 const newsapi = new NewsAPI(newsapi_auth.key);
 
-// authentication to gcp for local testing
-process.env['GOOGLE_APPLICATION_CREDENTIALS'] = 'gcp_auth.json'
-
 const firestore = new Firestore();
 const sources_collection = firestore.collection('sources');
 
@@ -18,7 +15,7 @@ function getSources(language = 'en') {
   return sources;
 }
 
-function updateSourcesDocument() {
+function updateSourcesCollection() {
   getSources()
   .catch("Failed to get the sources from newsapi.org.")
   .then((response) => {
@@ -35,5 +32,3 @@ function updateSourcesDocument() {
     });
   });
 }
-
-updateSourcesDocument();
