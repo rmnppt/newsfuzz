@@ -1,9 +1,8 @@
 const NewsAPI = require('newsapi');
 const { Firestore } = require('@google-cloud/firestore');
 const { Sources } = require('./entities');
-const newsapi_auth = require('./newsapi_auth');
 
-const newsapi = new NewsAPI(newsapi_auth.key);
+const newsapi = new NewsAPI(process.env.NEWSAPIKEY);
 
 const firestore = new Firestore();
 const sources_collection = firestore.collection('sources');
