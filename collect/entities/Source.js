@@ -6,7 +6,7 @@ class Source {
     url,
     category,
     language,
-    country
+    country,
   ) {
     this.id = id;
     this.name = name;
@@ -24,19 +24,17 @@ class Source {
       category: this.category,
       language: this.language,
       country: this.country,
-    }
+    };
   }
 }
 
 class Sources {
   constructor(sources) {
     if (Array.isArray(sources)) {
-      if (sources.every((source) => {
-        return source instanceof Source
-      })) {
-        this.sources = sources
+      if (sources.every((source) => source instanceof Source)) {
+        this.sources = sources;
       } else {
-        sources = sources.map((s) => {
+        const new_sources = sources.map((s) => {
           return new Source(
             s.id,
             s.name,
@@ -47,20 +45,21 @@ class Sources {
             s.country,
           );
         });
-        this.sources = sources
-      }} else {
-        throw new Error(
-          'Did not provide and array of items, please check input'
-        );
+        this.sources = new_sources;
       }
+    } else {
+      throw new Error(
+        'Did not provide and array of items, please check input'
+      );
+    }
   }
 
   getAll() {
-    return this.sources.map((s) => s.get())
+    return this.sources.map((s) => s.get());
   }
 }
 
 module.exports = {
   Source,
   Sources,
-}
+};

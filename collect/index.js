@@ -51,9 +51,18 @@ exports.updateSourcesCollection = function updateSourcesCollection() {
 exports.updateArticlesCollection = function updateArticlesCollection() {
   sources_collection.get()
     .then((querySnapshot) => {
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach((source) => {
         // doc.data() is never undefined for query doc snapshots
-        console.log(doc.id, ' => ', doc.data());
+        console.log(source.id);
+
+        const today = new Date();
+        const yesterday = today;
+        yesterday.setDate(today.getDate() - 1);
+
+        getArticles(source.id, yesterday.toISOString())
+          .then((response) => {
+            console.log(response.articles[0]);
+          });
       });
     });
 };
