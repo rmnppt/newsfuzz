@@ -15,17 +15,38 @@ function getSources(language = 'en') {
   return sources;
 }
 
-function getArticles(sources, from, to, language = 'en') {
-  const articles = newsapi.v2.everything({
+function getArticles(sources, from, to, page = 1, language = 'en') {
+  const pagesize = 100;
+  const args = {
     sources,
     from,
     to,
     language,
-    pageSize: 100,
-    page: 1,
-  });
+    pageSize: pagesize,
+    page: page,
+  }
+  const articles = newsapi.v2.everything(args);
   // TODO - need to add paging here for the prolific sources
-  return articles;
+  return articles
+    .then((response) => {
+      const total_results = response.totalResults;
+      const n_pages = Math.ceil(total_results / pagesize);
+      if (n_pages > 1) {
+        results_promises = [];
+        results_promises.push(response.articles);
+        for (i = 2; i <= n_pages; i++) {
+          args.page = i;
+          const articles = newsapi.v2.everything(args);
+          results_promises.push(articles);
+        }
+      }
+
+      return results_promises
+      // TODO flatten the resulting nested array.
+        // .then((results_pages) => {
+        //
+        // });
+    });
 }
 
 exports.updateSourcesCollection = function updateSourcesCollection() {
@@ -51,6 +72,8 @@ exports.updateSourcesCollection = function updateSourcesCollection() {
 exports.updateArticlesCollection = function updateArticlesCollection() {
   sources_collection.get()
     .then((querySnapshot) => {
+      // TODO: concatenate the sources and make a single paginated call
+      // to reduce the number of calls.
       querySnapshot.forEach((source) => {
         // doc.data() is never undefined for query doc snapshots
         console.log(source.id);
@@ -60,8 +83,8 @@ exports.updateArticlesCollection = function updateArticlesCollection() {
         yesterday.setDate(today.getDate() - 1);
 
         getArticles(source.id, yesterday.toISOString())
-          .then((response) => {
-            console.log(response.articles[0]);
+          .then((articles) => {
+            console.log(articles);
           });
       });
     });
