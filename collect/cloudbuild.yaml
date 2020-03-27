@@ -1,0 +1,15 @@
+steps:
+
+# - name: 'gcr.io/cloud-builders/yarn'
+#   args: ['install']
+#   dir: 'functions/autodeploy'
+
+# - name: 'gcr.io/cloud-builders/npm'
+#   args: ['test']
+#   dir: 'functions/autodeploy'
+
+# The source directory and trigger will be taken from the
+# previous manual deployment.
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['functions', 'deploy', 'newsapi-updateSources', '--runtime', 'nodejs8']
+  dir: 'functions/autodeploy'

@@ -30,3 +30,7 @@ function updateSourcesCollection() {
       });
     });
 }
+
+module.exports = {
+  updateSourcesCollection
+}
