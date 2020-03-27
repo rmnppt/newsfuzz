@@ -15,8 +15,9 @@
   "author": "Roman Popat",
   "dependencies": {
     "@google-cloud/firestore": "^3.7.1",
-    "newsapi": "^2.4.0",
-    "entities": "file:entities"
+    "dotenv": "^8.2.0",
+    "entities": "file:entities",
+    "newsapi": "^2.4.0"
   },
   "devDependencies": {
     "eslint": "^6.8.0",
