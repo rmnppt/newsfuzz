@@ -14,7 +14,7 @@ function getSources(language = 'en') {
   return sources;
 }
 
-function updateSourcesCollection() {
+exports.updateSourcesCollection = function updateSourcesCollection() {
   getSources()
     .catch('Failed to get the sources from newsapi.org.')
     .then((response) => {
@@ -29,8 +29,4 @@ function updateSourcesCollection() {
         doc.set(source, { merge: true });
       });
     });
-}
-
-module.exports = {
-  updateSourcesCollection
 }
