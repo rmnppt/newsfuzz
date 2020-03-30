@@ -16,48 +16,56 @@ function getSources(language = 'en') {
 }
 
 function getArticles(sources, from, to, page = 1, language = 'en') {
-  const pagesize = 100;
+  const pageSize = 100;
   const args = {
     sources,
     from,
     to,
     language,
-    pageSize: pagesize,
-    page: page,
-  }
+    pageSize,
+    page,
+  };
   const articles = newsapi.v2.everything(args);
-  // TODO - need to add paging here for the prolific sources
   return articles
     .then((response) => {
       const total_results = response.totalResults;
-      const n_pages = Math.ceil(total_results / pagesize);
+      console.log(`${total_results} Articles found.`);
+      // paging here for multi page results
+      const n_pages = Math.ceil(total_results / pageSize);
       if (n_pages > 1) {
-        results_promises = [];
+        const results_promises = [];
         results_promises.push(response.articles);
+
         for (i = 2; i <= n_pages; i++) {
           args.page = i;
-          const articles = newsapi.v2.everything(args);
-          results_promises.push(articles);
+          const this_page = newsapi.v2.everything(args)
+            .catch('Failed to get articles from newsapi.org');
+          results_promises.push(this_page);
         }
-      }
 
-      return results_promises
-      // TODO flatten the resulting nested array.
-        // .then((results_pages) => {
-        //
-        // });
+        // flatten the resulting nested array.
+        return Promise.all(results_promises)
+          .then((results_pages) => {
+            let results = [];
+            results_pages.forEach((result) => {
+              results = results.concat(result.articles);
+            });
+            return results;
+          });
+      }
+      return response.articles;
     });
 }
 
 exports.updateSourcesCollection = function updateSourcesCollection() {
   getSources()
-    .catch('Failed to get the sources from newsapi.org.')
+    .catch('Failed to get sources from newsapi.org.')
     .then((response) => {
       console.log(`response status: ${response.status}`);
       console.log(`number of sources: ${response.sources.length}`);
 
       // Roman 27/03/20
-      // Im putting them into an explicit data model, #
+      // Im putting them into an explicit data model,
       // will possibly bundle some QC in there.
       const sourceObj = new Sources(response.sources);
       const sources = sourceObj.getAll();
@@ -72,9 +80,13 @@ exports.updateSourcesCollection = function updateSourcesCollection() {
 exports.updateArticlesCollection = function updateArticlesCollection() {
   sources_collection.get()
     .then((querySnapshot) => {
-      // TODO: concatenate the sources and make a single paginated call
-      // to reduce the number of calls.
-      querySnapshot.forEach((source) => {
+      querySnapshot.forEach((source, index) => {
+        // TODO: make a subset of the sources here to reduce the number of API calls
+        // NOTE: this line is for testing to reduce the number of API calls.
+        if (index > 1) {
+          return;
+        }
+
         // doc.data() is never undefined for query doc snapshots
         console.log(source.id);
 
@@ -83,8 +95,9 @@ exports.updateArticlesCollection = function updateArticlesCollection() {
         yesterday.setDate(today.getDate() - 1);
 
         getArticles(source.id, yesterday.toISOString())
+          .catch('Failed to get articles from newsapi.org')
           .then((articles) => {
-            console.log(articles);
+            console.log(articles.length);
           });
       });
     });
