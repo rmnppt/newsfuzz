@@ -21,11 +21,13 @@ class Article {
     this.urlToImage = urlToImage;
     this.publishedAt = publishedAt;
     this.content = content;
+
+    this.makeHashId(`${author} ${publishedAt} ${title}`);
   }
 
-  // function makeHashId() {
-  //
-  // }
+  makeHashId(string) {
+    this.hash = crypto.createHash('sha1').update(string).digest('hex');
+  }
 }
 
 class Articles {
