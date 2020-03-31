@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 class Article {
   constructor(
     source,
@@ -28,6 +30,20 @@ class Article {
   makeHashId(string) {
     this.hash = crypto.createHash('sha1').update(string).digest('hex');
   }
+
+  get() {
+    return {
+      hash: this.hash,
+      source: this.source,
+      author: this.author,
+      title: this.title,
+      description: this.description,
+      url: this.url,
+      urlToImage: this.urlToImage,
+      publishedAt: this.publishedAt,
+      content: this.content,
+    };
+  }
 }
 
 class Articles {
@@ -54,9 +70,13 @@ class Articles {
       }
     } else {
       throw new Error(
-        'Did not provide and array of items, please check input'
+        'Did not provide an array of items, please check input',
       );
     }
+  }
+
+  getAll() {
+    return this.articles.map((a) => a.get());
   }
 }
 
