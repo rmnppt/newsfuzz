@@ -102,11 +102,10 @@ exports.updateArticlesCollection = function updateArticlesCollection() {
       yesterday.setHours(today.getHours() - 1);
 
       sources_groups.forEach((source, index) => {
-        // TODO: make a subset of the sources here to reduce the number of API calls
-        // NOTE: this line is for testing to reduce the number of API calls.
-        if (index > 0) {
-          return;
-        }
+        // // NOTE: this line is for testing to reduce the number of API calls.
+        // if (index > 0) {
+        //   return;
+        // }
 
         getArticles(source, yesterday.toISOString())
           .catch('Failed to get articles from newsapi.org')

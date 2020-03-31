@@ -13,3 +13,7 @@ steps:
 - name: 'gcr.io/cloud-builders/gcloud'
   args: ['functions', 'deploy', 'newsapi-updateSources', '--runtime', 'nodejs8']
   dir: 'functions/autodeploy'
+
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['functions', 'deploy', 'newsapi-updateArticles', '--runtime', 'nodejs8']
+  dir: 'functions/autodeploy'
