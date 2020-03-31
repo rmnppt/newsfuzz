@@ -1,4 +1,4 @@
-container-build: Dockerfile
+build: Dockerfile
 	docker build -t newsfuzz:analyse .
 
 dev: build

@@ -2,12 +2,12 @@
 FROM python:3.8-slim
 
 # copy the Pipfile
-# WORKDIR /usr/src/app
-# COPY Pipfile* ./
+WORKDIR /usr/src/app
+COPY Pipfile* ./
 
 # setup python stuff
-# RUN pip install pipenv &&\
-#     pipenv install
+RUN pip install pipenv &&\
+    pipenv install
 
 # copy our source
 # COPY analysis ./analysis

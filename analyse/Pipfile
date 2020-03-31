@@ -1,0 +1,28 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+
+# science
+scipy = "*"
+numpy = "*"
+
+# data science
+sklearn = "*"
+pandas = "*"
+
+
+[dev-packages]
+
+# google cloud
+google-cloud-firestore = "*"
+
+# viz
+plotly = "*"
+
+
+[requires]
+python_version = "3.8"
