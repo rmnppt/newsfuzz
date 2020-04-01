@@ -1,4 +1,5 @@
 build: Dockerfile
+	cp ../gcp_auth.json .
 	docker build -t newsfuzz:analyse .
 
 dev: build
