@@ -21,7 +21,7 @@ class Article {
     this.description = description;
     this.url = url;
     this.urlToImage = urlToImage;
-    this.publishedAt = publishedAt;
+    this.publishedAt = new Date(publishedAt);
     this.content = content;
 
     this.makeHashId(`${author} ${publishedAt} ${title}`);
