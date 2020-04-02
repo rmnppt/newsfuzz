@@ -7,15 +7,16 @@ name = "pypi"
 # science
 scipy = "*"
 numpy = "*"
+
 # data science
 sklearn = "*"
 pandas = "*"
-firebase-admin = "*"
 
 [dev-packages]
 # google cloud
 firebase-admin = "*"
 google-cloud-firestore = "*"
+
 # viz
 plotly = "*"
 
