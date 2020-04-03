@@ -1,5 +1,3 @@
-import sys
-from getopt import getopt
 import logging
 import firebase_admin
 from firebase_admin import credentials
