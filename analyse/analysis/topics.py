@@ -3,15 +3,11 @@ from getopt import getopt
 import logging
 from datetime import datetime, timedelta
 import re
+import pandas as pd
 from utils.database import DocumentDB
 
 logging.getLogger().setLevel(logging.INFO)
 
-
-def cleanArticle(article):
-    # removes the continuation indicator from the end of the truncated article
-    clean_article = re.sub(r'.[A-z]+. [+[0-9]*\schars]', '', article)
-    return clean_article
 
 
 def run():
@@ -21,13 +17,13 @@ def run():
         .query('publishedAt', '>', last_month) \
         .toDf()
 
-    logging.info(type(articles.content[0]))
-    logging.info(articles.content[0])
+    # remove the truncation text
+    articles.content = articles.content.str.replace(r'.[A-z]+. [+[0-9]*\schars]', '')
 
-    ### TODO This is not working yet, possibly due to the argument type?
-    # articles['clean_content'] = articles['content'].apply(cleanArticle)
-    clean_articles = articles['content'].apply(cleanArticle)
-
+    # stemming
+    # remove stopwords
+    # tf-idf
+    # non-negative matrix factorisation
 
 def main(arguments):
     level = logging.INFO
