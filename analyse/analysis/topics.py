@@ -8,6 +8,7 @@ import re
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import NMF
+from afinn import Afinn
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -20,22 +21,12 @@ def print_top_words(model, feature_names, n_top_words):
         logging.info(message)
     logging.info('')
 
-def run():
-    last_month = datetime.today() - timedelta(days=30)
-    articles = DocumentDB() \
-        .collection('articles') \
-        .query('publishedAt', '>', last_month) \
-        .toDf()
 
-    articles = articles.dropna(subset=['content'])
-
-    # remove the truncation text
-    articles.content = articles.content.str.replace(r'.[A-z]+. [+[0-9]*\schars]', '')
-
-    n_samples = len(articles.content)
-    n_features = 300
+def getTopics(text_series):
+    n_samples = len(text_series)
+    n_features = 1000
     n_components = 20
-    n_top_words = 20
+    n_top_words = 4
 
     # Use tf-idf features for NMF.
     logging.info("Extracting tf-idf features for NMF...")
@@ -47,36 +38,49 @@ def run():
     )
 
     t0 = time()
-    tfidf = tfidf_vectorizer.fit_transform(articles.content)
+    tfidf = tfidf_vectorizer.fit_transform(text_series)
+
     logging.info("done in %0.3fs." % (time() - t0))
 
     # non-negative matrix factorisation
     # Fit the NMF model
     logging.info("Fitting the NMF model (Frobenius norm) with tf-idf features, "
-          "n_samples=%d and n_features=%d..."
-          % (n_samples, n_features))
+                 "n_samples=%d and n_features=%d..."
+                 % (n_samples, n_features))
     t0 = time()
-    nmf = NMF(n_components=n_components, random_state=1,
-              alpha=.1, l1_ratio=.5).fit(tfidf)
+    nmf = NMF(
+        n_components=n_components,
+        random_state=1,
+        alpha=.1,
+        l1_ratio=.5,
+        init="nndsvd"
+    ).fit(tfidf)
     logging.info("done in %0.3fs." % (time() - t0))
 
     logging.info("Topics in NMF model (Frobenius norm):")
     tfidf_feature_names = tfidf_vectorizer.get_feature_names()
     print_top_words(nmf, tfidf_feature_names, n_top_words)
 
-    # Fit the NMF model
-    logging.info("Fitting the NMF model (generalized Kullback-Leibler divergence) with "
-        "tf-idf features, n_samples=%d and n_features=%d..."
-        % (n_samples, n_features))
-    t0 = time()
-    nmf = NMF(n_components=n_components, random_state=1,
-              beta_loss='kullback-leibler', solver='mu', max_iter=1000, alpha=.1,
-              l1_ratio=.5).fit(tfidf)
-    logging.info("done in %0.3fs." % (time() - t0))
+    W = nmf.fit_transform(tfidf)
+    H = nmf.components_
 
-    logging.info("Topics in NMF model (generalized Kullback-Leibler divergence):")
-    tfidf_feature_names = tfidf_vectorizer.get_feature_names()
-    print_top_words(nmf, tfidf_feature_names, n_top_words)
+    afinn = Afinn()
+    sentiment = [afinn.score(a) for a in text_series]
+    
+
+
+def run():
+    last_month = datetime.today() - timedelta(days=30)
+    articles = DocumentDB() \
+        .collection('articles') \
+        .query('publishedAt', '>', last_month) \
+        .toDf()
+
+    articles = articles.dropna(subset=['content'])
+
+    # remove the truncation text
+    articles.content = articles.content.str.replace(r'.[A-z]+. [+[0-9]*\schars]', '')
+    topics = getTopics(articles.content)
 
 
 def main(arguments):

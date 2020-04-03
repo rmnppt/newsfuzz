@@ -11,6 +11,7 @@ numpy = "*"
 # data science
 sklearn = "*"
 pandas = "*"
+afinn = "*"
 
 [dev-packages]
 # google cloud
