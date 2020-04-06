@@ -6,27 +6,42 @@ from utils.database import DocumentDB
 from datetime import datetime, timedelta
 import re
 import pandas as pd
+import jsonpickle
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import NMF
 from afinn import Afinn
 
 logging.getLogger().setLevel(logging.INFO)
 
+class Object:
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+            sort_keys=True, indent=4)
 
 def print_top_words(model, feature_names, n_top_words):
+    topic_descriptions = []
     for topic_idx, topic in enumerate(model.components_):
         message = "Topic #%d: " % topic_idx
-        message += " ".join([feature_names[i]
-                             for i in topic.argsort()[:-n_top_words - 1:-1]])
+        top_terms = ", ".join([feature_names[i]
+                               for i in topic.argsort()[:-n_top_words - 1:-1]])
+        message += top_terms
         logging.info(message)
+        topic_descriptions.append(top_terms)
     logging.info('')
+    return topic_descriptions
 
 
-def getTopics(text_series):
+def getSentiment(text_series):
+    afinn = Afinn()
+    sentiment = [afinn.score(a) for a in text_series]
+    return sentiment
+
+
+def getTopics(ids, text_series):
     n_samples = len(text_series)
     n_features = 1000
     n_components = 20
-    n_top_words = 4
+    n_top_words = 10
 
     # Use tf-idf features for NMF.
     logging.info("Extracting tf-idf features for NMF...")
@@ -59,19 +74,30 @@ def getTopics(text_series):
 
     logging.info("Topics in NMF model (Frobenius norm):")
     tfidf_feature_names = tfidf_vectorizer.get_feature_names()
-    print_top_words(nmf, tfidf_feature_names, n_top_words)
+
+    topic_descriptions = print_top_words(nmf, tfidf_feature_names, n_top_words)
 
     W = nmf.fit_transform(tfidf)
     H = nmf.components_
 
-    afinn = Afinn()
-    sentiment = [afinn.score(a) for a in text_series]
-    
+    logging.info(f'Shape of document topic matrix: {W.shape}')
+    logging.info(f'Shape of topic term matrix: {H.shape}')
+
+    model_results = {
+        "document_ids": ids,
+        "terms": tfidf_feature_names,
+        "article_topics": W,
+        "topic_terms": H,
+        "topic_descriptions": topic_descriptions,
+    }
+
+    return model_results
 
 
 def run():
     last_month = datetime.today() - timedelta(days=30)
-    articles = DocumentDB() \
+    db = DocumentDB()
+    articles = db \
         .collection('articles') \
         .query('publishedAt', '>', last_month) \
         .toDf()
@@ -79,8 +105,21 @@ def run():
     articles = articles.dropna(subset=['content'])
 
     # remove the truncation text
-    articles.content = articles.content.str.replace(r'.[A-z]+. [+[0-9]*\schars]', '')
-    topics = getTopics(articles.content)
+    articles.content = articles.content.str.replace(
+        r'.[A-z]+. [+[0-9]*\schars]', ''
+    )
+
+    # do the analysis
+    topics = getTopics(articles.hash, articles.content)
+    sentiment = getSentiment(articles.content)
+
+    # write it back to the db
+    analysis_results = db.collection('analysis')
+
+    # TODO figure out all of the serialisation problems for writing back to the document db 
+
+    # analysis_results.document('topics').write(json.dump(topics))
+    # analysis_results.document('sentiment').write(json.dumps(sentiment))
 
 
 def main(arguments):
@@ -90,7 +129,8 @@ def main(arguments):
         if option == "-l":
             level = getattr(logging, argument.upper())
 
-    logging.basicConfig(level=level, format="%(asctime)s:%(levelname)s: %(message)s")
+    logging.basicConfig(
+        level=level, format="%(asctime)s:%(levelname)s: %(message)s")
     try:
         run()
     except Exception:

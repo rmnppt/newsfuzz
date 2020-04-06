@@ -15,7 +15,7 @@ class DocumentDB:
         self.db = firestore.client()
 
     def collection(self, collection):
-        self.reference = self.db.collection(u'articles')
+        self.reference = self.db.collection(collection)
         return self
 
     def query(self, field, operator, value):
@@ -28,3 +28,11 @@ class DocumentDB:
         logging.info(f'Query returned {len(docs_list)} results.')
         df = pd.DataFrame(docs_list)
         return df
+
+    def document(self, document):
+        self.reference = self.reference.document(document)
+        return self
+
+    def write(self, data):
+        self.reference.set(data)
+        return 1
