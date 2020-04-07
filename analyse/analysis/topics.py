@@ -2,9 +2,10 @@ import sys
 from getopt import getopt
 import logging
 from time import time
-from utils.database import DocumentDB
+from utils.database import DocumentDB, StorageDB
 from datetime import datetime, timedelta
 import re
+import json
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import NMF
@@ -12,25 +13,6 @@ from afinn import Afinn
 
 logging.getLogger().setLevel(logging.INFO)
 
-from google.cloud import storage
-
-def upload_blob(bucket_name, data_string, destination_blob_name):
-    """Uploads a file to the bucket."""
-    # bucket_name = "your-bucket-name"
-    # source_file_name = "local/path/to/file"
-    # destination_blob_name = "storage-object-name"
-
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(destination_blob_name)
-
-    blob.upload_from_string(data_string)
-
-    print(
-        "String uploaded to {}.".format(
-             destination_blob_name
-        )
-    )
 
 class Model:
     def __init__(self):
@@ -92,7 +74,7 @@ class Model:
             logging.info(message)
             topic_descriptions.append(top_terms)
         logging.info('')
-        self.topic_descriptions = topic_descriptions
+        return topic_descriptions
 
     def getSentiment(self, text_series):
         afinn = Afinn()
@@ -111,8 +93,8 @@ class Model:
 
         model_results = {
             "terms": tfidf_feature_names,
-            "article_topics": W,
-            "topic_terms": H,
+            "article_topics": W.tolist(),
+            "topic_terms": H.tolist(),
             "topic_descriptions": topic_descriptions,
             "sentiment_scores": self.sentiment_scores,
         }
@@ -141,7 +123,7 @@ def run():
         .fit_transform(articles.content) \
         .results()
 
-    analysis['article_hashes'] = articles.hash
+    analysis['article_hashes'] = articles.hash.tolist()
 
     # sense check: is the analysis the right shape?
     right_shape = len(analysis['article_hashes']) == len(analysis['article_topics']) == len(analysis['sentiment_scores'])
@@ -149,7 +131,7 @@ def run():
         raise ValueError('Analysis results are the wrong shape')
 
     # write it back to the db - this time a cloud storage object
-    upload_blob('newsfuzz-analysis', json.dumps(analysis), 'daily.json')
+    StorageDB().write('newsfuzz-analysis', json.dumps(analysis), 'daily.json')
 
 
 def main(arguments):

@@ -2,6 +2,7 @@ import logging
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
+from google.cloud import storage
 import pandas as pd
 
 class DocumentDB:
@@ -36,3 +37,25 @@ class DocumentDB:
     def write(self, data):
         self.reference.set(data)
         return 1
+
+
+class StorageDB():
+    def __init__(self):
+        self.client = storage.Client.from_service_account_json('./gcp_auth.json')
+
+    def write(self, bucket_name, data_string, destination_blob_name):
+        """Uploads a file to the bucket."""
+        # bucket_name = "your-bucket-name"
+        # data_string = "{json_data: 'in string format'}"
+        # destination_blob_name = "storage-object-name"
+
+        bucket = self.client.bucket(bucket_name)
+        blob = bucket.blob(destination_blob_name)
+
+        blob.upload_from_string(data_string)
+
+        print(
+            "String uploaded to {}.".format(
+                 destination_blob_name
+            )
+        )
