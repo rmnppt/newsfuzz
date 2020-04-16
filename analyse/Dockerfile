@@ -5,7 +5,8 @@ FROM python:3.8-slim
 # this ensures that any downstream changes don't cause pipenv to unnecessarily
 # re-run the locking process which takes a while, this will only happen if we
 # need new dependencies
-WORKDIR /usr/src/app
+ENV APP_HOME /app
+WORKDIR $APP_HOME
 COPY Pipfile* ./
 
 # setup python stuff
@@ -16,12 +17,13 @@ RUN pip install pipenv &&\
 COPY ./gcp_auth.json .
 
 # copy our source
-COPY analysis ./analysis
 COPY utils ./utils
+COPY analysis ./analysis
+COPY app.py ./
 
 # install our modules
 RUN pipenv run python ./utils/setup.py install
+RUN pipenv run python ./analysis/setup.py install
 
 # lets go!
-ENTRYPOINT ["pipenv", "run"]
-CMD ["python", "analysis/run.py"]
+CMD exec pipenv run gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app
