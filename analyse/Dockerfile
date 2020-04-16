@@ -22,5 +22,6 @@ COPY utils ./utils
 # install our modules
 RUN pipenv run python ./utils/setup.py install
 
-# just to make it run?
-ENTRYPOINT ["bash"]
+# lets go!
+ENTRYPOINT ["pipenv", "run"]
+CMD ["python", "analysis/run.py"]

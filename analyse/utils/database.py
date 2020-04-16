@@ -55,7 +55,7 @@ class StorageDB():
         blob.upload_from_string(data_string)
 
         print(
-            "String uploaded to {}.".format(
+            "String stored in storage bucket: {}.".format(
                  destination_blob_name
             )
         )
