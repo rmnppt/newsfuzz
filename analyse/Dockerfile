@@ -25,5 +25,7 @@ COPY app.py ./
 RUN pipenv run python ./utils/setup.py install
 RUN pipenv run python ./analysis/setup.py install
 
+EXPOSE $PORT
+
 # lets go!
-CMD exec pipenv run gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app
+# CMD exec pipenv run gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app

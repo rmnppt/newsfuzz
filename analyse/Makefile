@@ -3,16 +3,19 @@ build: Dockerfile
 	docker build -t newsfuzz:analyse .
 
 dev: build
-	docker run --rm --name newsfuzz_analyse -itv ${PWD}:/usr/src/app newsfuzz:analyse bash
+	docker run --rm --name newsfuzz_analyse --network host -itv ${PWD}:/usr/src/app newsfuzz:analyse bash
 
 run: build
-	docker run --rm -e "PORT=8080" newsfuzz:analyse
+	docker run --rm --network host -e "PORT=8080" newsfuzz:analyse
+
+cloud-build:
+	gcloud builds submit . --tag gcr.io/newsfuzz/analyse
 
 register: build
 	docker tag newsfuzz:analyse gcr.io/newsfuzz/analyse
 	docker push gcr.io/newsfuzz/analyse
 
-deploy: register
+deploy:
 	gcloud run deploy --image gcr.io/newsfuzz/analyse --platform managed
 
 teardown:
