@@ -5,13 +5,15 @@ FROM python:3.8-slim
 # this ensures that any downstream changes don't cause pipenv to unnecessarily
 # re-run the locking process which takes a while, this will only happen if we
 # need new dependencies
-ENV APP_HOME /app
-WORKDIR $APP_HOME
+WORKDIR /app
 COPY Pipfile* ./
+
+# This fixes a bug in gcloud/pipenv, see here: https://github.com/pypa/pipenv/issues/4174
+ENV PIPENV_VENV_IN_PROJECT 1
 
 # setup python stuff
 RUN pip install pipenv &&\
-    pipenv install --dev
+    pipenv install
 
 # copy the gcp credentials
 COPY ./gcp_auth.json .
@@ -28,4 +30,5 @@ RUN pipenv run python ./analysis/setup.py install
 EXPOSE $PORT
 
 # lets go!
-# CMD exec pipenv run gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app
+ENTRYPOINT ["pipenv", "run"]
+CMD gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app

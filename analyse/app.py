@@ -19,16 +19,6 @@ def analyse():
     asyncio.run(async_analysis())
     return "analysis started"
 
-# if __name__ == "__main__":
-#     asyncio.run(
-#         app.run(
-#             debug=True,
-#             host='0.0.0.0',
-#             port=int(os.environ.get('PORT', 8080))
-#         )
-#     )
-
-
 def main(arguments):
     level = logging.INFO
     options, arguments = getopt(arguments, "l:")

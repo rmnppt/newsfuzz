@@ -17,14 +17,13 @@ sklearn = "*"
 pandas = "*"
 afinn = "*"
 
-[dev-packages]
 # google cloud
 firebase-admin = "*"
 google-cloud-firestore = "*"
 google-cloud-storage = "*"
 
 # viz
-plotly = "*"
+# plotly = "*"
 
 [requires]
 python_version = "3.8"
