@@ -1,0 +1,35 @@
+{
+  "name": "newsfuzz-present",
+  "version": "0.0.0",
+  "description": "Node/Express backend with React client",
+  "main": "server.js",
+  "scripts": {
+    "client": "cd client && yarn start",
+    "server": "nodemon server.js",
+    "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:rmnppt/newsfuzz.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rmnppt/newsfuzz/issues"
+  },
+  "homepage": "https://github.com/rmnppt/newsfuzz#readme",
+  "dependencies": {
+    "@google-cloud/storage": "^4.7.0",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "concurrently": "^5.1.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "nodemon": "^2.0.2"
+  }
+}
