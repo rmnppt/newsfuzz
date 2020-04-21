@@ -10,7 +10,7 @@ export default class SummaryPage extends React.Component {
       topic_terms: null,
       topic_descriptions: null,
       sentiment_scores: null,
-      article_hashes: null
+      article_hashes: null,
     }
   }
 
@@ -24,7 +24,7 @@ export default class SummaryPage extends React.Component {
           topic_terms: data.topic_terms,
           topic_descriptions: data.topic_descriptions,
           sentiment_scores: data.sentiment_scores,
-          article_hashes: data.article_hashes
+          article_hashes: data.article_hashes,
         });
       })
       .catch(err => console.log(err));

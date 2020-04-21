@@ -40,8 +40,11 @@ def run():
         raise ValueError('Analysis results are the wrong shape')
 
     # write it back to the db - this time a cloud storage object
-    StorageDB().write('newsfuzz-analysis', json.dumps(analysis), 'daily.json')
+    StorageDB().write('newsfuzz-analysis', json.dumps(analysis), 'daily_analysis.json')
 
+    articles_storage = articles.to_json(orient='records')
+    # logging.info(articles_storage)
+    StorageDB().write('newsfuzz-analysis', articles_storage, 'articles.json')
 
 def main(arguments):
     level = logging.INFO
