@@ -7,7 +7,7 @@ class Query {
     this.srcFilename = 'daily.json';
   }
 
-  data() {
+  data(req, res) {
     const storage = new Storage();
     const myBucket = storage.bucket(this.bucketName);
     const file = myBucket.file(this.srcFilename);
@@ -19,16 +19,17 @@ class Query {
     //-
     // If the callback is omitted, we'll return a Promise.
     //-
-    return file.get().then(function(data) {
-      const file = data[0];
-      const apiResponse = data[1];
+    console.log('Reading File');
+    var archive = file.createReadStream();
 
-      console.log(file);
-      console.log(apiResponse);
-
-      return file;
+    console.log('Concat Data');
+    var  buf = '';
+    archive.on('data', function(d) {
+      buf += d;
+    }).on('end', function() {
+      console.log("End");
+      res.send(buf);
     });
-
   }
 
 }

@@ -19,18 +19,8 @@ app.post('/api/world', (req, res) => {
   );
 });
 
-app.post('/database/data', (req, res) => {
-  // console.log(req.body);
-
-  async function getData() {
-    const query = new Query();
-    const data = await query.data();
-    return data;
-  }
-
-  getData().then((data) => {
-    res.send(data);
-  });
+app.get('/database/data', (req, res) => {
+  const query = new Query().data(req, res);
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
