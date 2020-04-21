@@ -5,14 +5,18 @@ from firebase_admin import firestore
 from google.cloud import storage
 import pandas as pd
 
+# Use a service account
+cred = credentials.Certificate('./gcp_auth.json')
+firebase_admin.initialize_app(cred)
+
 class DocumentDB:
     '''Abstracted connection to document database where articles are stored'''
 
     def __init__(self):
         '''Authentication and set up'''
-        # Use a service account
-        self.cred = credentials.Certificate('./gcp_auth.json')
-        firebase_admin.initialize_app(self.cred)
+        # # Use a service account
+        # self.cred = credentials.Certificate('./gcp_auth.json')
+        # firebase_admin.initialize_app(self.cred)
         self.db = firestore.client()
 
     def collection(self, collection):
