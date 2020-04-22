@@ -16,7 +16,7 @@ register: build
 	docker push gcr.io/newsfuzz/analyse
 
 deploy:
-	gcloud run deploy --image gcr.io/newsfuzz/analyse --platform managed
+	gcloud run deploy analyse --image gcr.io/newsfuzz/analyse --platform managed --region europe-west1
 
 teardown:
 	docker stop newsfuzz_analyse

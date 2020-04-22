@@ -4,7 +4,7 @@ process.env.GOOGLE_APPLICATION_CREDENTIALS = 'database/gcp_auth.json';
 class Query {
   constructor() {
     this.bucketName = 'newsfuzz-analysis';
-    this.srcFilename = 'daily.json';
+    this.srcFilename = 'daily_analysis.json';
   }
 
   data(req, res) {
